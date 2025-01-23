@@ -13,7 +13,7 @@ app.post('/process-pdf', multer({ dest: 'uploads/' }).single('source'), async (r
 
     try {
         await new Promise((resolve, reject) => {
-            const python = spawn('./venv/bin/python3', ['pdf_image.py']);
+            const python = spawn('./venv/bin/python3', ['pdf_image_test.py']);
             python.on('close', code => code === 0 ? resolve() : reject());
         });
 

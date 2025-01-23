@@ -79,7 +79,7 @@ def main():
 
    source_pdf = "uploads/source.pdf"
    background_pdf = "target.pdf"
-   output_pdf = "output_with_content.pdf"
+   output_pdf = Path("output") / f"{Path(source_pdf).stem}_output{Path(source_pdf).suffix}"
    
    vertical_offset = 20
    scale = 2
