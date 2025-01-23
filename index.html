@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Processor</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 20px auto; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        #status { margin-top: 20px; padding: 15px; display: none; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e9; color: #2e7d32; }
+        button { padding: 12px 24px; background: #2196f3; color: white; border: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF Processor</h1>
+        <div class="form-group">
+            <label>Source PDF:</label>
+            <input type="file" id="fileInput" accept=".pdf">
+        </div>
+        <button id="processBtn" onclick="processPDF()">Process PDF</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function processPDF() {
+            const status = document.getElementById('status');
+            const btn = document.getElementById('processBtn');
+            const file = document.getElementById('fileInput').files[0];
+
+            if (!file) {
+                status.style.display = 'block';
+                status.className = 'error';
+                status.textContent = 'Please select a PDF file';
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                status.style.display = 'block';
+                status.textContent = 'Processing...';
+
+                const formData = new FormData();
+                formData.append('source', file);
+
+                const response = await fetch('http://localhost:3000/process-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error);
+
+                const blob = new Blob([Uint8Array.from(atob(result.data), c => c.charCodeAt(0))], 
+                    {type: 'application/pdf'});
+                
+                window.open(URL.createObjectURL(blob), '_blank');
+                status.className = 'success';
+                status.textContent = 'PDF opened in new tab';
+            } catch (error) {
+                status.className = 'error';
+                status.textContent = error.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
